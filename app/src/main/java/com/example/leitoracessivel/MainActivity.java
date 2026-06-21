@@ -1,0 +1,171 @@
+package com.example.leitoracessivel;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.leitoracessivel.adapter.ArtigoAdapter;
+import com.example.leitoracessivel.model.database.DatabaseHelper;
+import com.example.leitoracessivel.model.entities.Artigo;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnArtigoClickListener {
+
+    public static final String EXTRA_ARTIGO_ID = "artigo_id";
+    public static final String EXTRA_MODO = "modo"; // "editar" ou "novo"
+
+    private RecyclerView recyclerView;
+    private ArtigoAdapter adapter;
+    private DatabaseHelper dbHelper;
+    private List<Artigo> artigos;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        dbHelper = new DatabaseHelper(this);
+        recyclerView = findViewById(R.id.recycler_artigos);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        FloatingActionButton fab = findViewById(R.id.fab_novo);
+        fab.setOnClickListener(v -> abrirEditor(null));
+
+        carregarArtigos();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        carregarArtigos();
+    }
+
+    private void carregarArtigos() {
+        artigos = dbHelper.listarArtigos();
+        if (adapter == null) {
+            adapter = new ArtigoAdapter(artigos, this);
+            recyclerView.setAdapter(adapter);
+            registerForContextMenu(recyclerView);
+        } else {
+            adapter.atualizarLista(artigos);
+        }
+    }
+
+    // ===== Menu AppBar =====
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menu_configuracoes) {
+            startActivity(new Intent(this, ConfigActivity.class));
+            return true;
+        } else if (id == R.id.menu_sobre) {
+            Snackbar.make(recyclerView,
+                    "LeitorAcessível v1.0 — Tecnologia Assistiva",
+                    Snackbar.LENGTH_LONG).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // ===== Menu de Contexto =====
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int pos = adapter.getPosicaoSelecionada();
+        if (pos < 0) return false;
+        Artigo artigo = adapter.getArtigo(pos);
+
+        int id = item.getItemId();
+        if (id == R.id.menu_context_ouvir) {
+            abrirPlayer(artigo);
+            return true;
+        } else if (id == R.id.menu_context_editar) {
+            abrirEditor(artigo);
+            return true;
+        } else if (id == R.id.menu_context_compartilhar) {
+            compartilhar(artigo);
+            return true;
+        } else if (id == R.id.menu_context_deletar) {
+            deletarArtigo(artigo);
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    // ===== Callbacks do Adapter =====
+    @Override
+    public void onArtigoClick(Artigo artigo) {
+        abrirPlayer(artigo);
+    }
+
+    @Override
+    public void onArtigoEdit(Artigo artigo) {
+        abrirEditor(artigo);
+    }
+
+    @Override
+    public void onArtigoDelete(Artigo artigo) {
+        deletarArtigo(artigo);
+    }
+
+    @Override
+    public void onArtigoShare(Artigo artigo) {
+        compartilhar(artigo);
+    }
+
+    // ===== Ações =====
+    private void abrirEditor(Artigo artigo) {
+        Intent intent = new Intent(this, EditorActivity.class);
+        if (artigo != null) {
+            intent.putExtra(EXTRA_ARTIGO_ID, artigo.getId());
+            intent.putExtra(EXTRA_MODO, "editar");
+        } else {
+            intent.putExtra(EXTRA_MODO, "novo");
+        }
+        startActivity(intent);
+    }
+
+    private void abrirPlayer(Artigo artigo) {
+        Intent intent = new Intent(this, PlayerActivity.class);
+        intent.putExtra(EXTRA_ARTIGO_ID, artigo.getId());
+        startActivity(intent);
+    }
+
+    private void compartilhar(Artigo artigo) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, artigo.getTitulo());
+        intent.putExtra(Intent.EXTRA_TEXT, artigo.getTitulo() + "\n\n" + artigo.getConteudo());
+        startActivity(Intent.createChooser(intent, "Compartilhar artigo via…"));
+    }
+
+    private void deletarArtigo(Artigo artigo) {
+        dbHelper.deletarArtigo(artigo.getId());
+        Toast.makeText(this, "Artigo deletado", Toast.LENGTH_SHORT).show();
+        Snackbar.make(recyclerView, "\"" + artigo.getTitulo() + "\" removido",
+                Snackbar.LENGTH_LONG)
+                .setAction("Desfazer", v -> {
+                    dbHelper.inserirArtigo(artigo);
+                    carregarArtigos();
+                }).show();
+        carregarArtigos();
+    }
+}
