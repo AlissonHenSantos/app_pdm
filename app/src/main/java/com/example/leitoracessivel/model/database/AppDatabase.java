@@ -23,7 +23,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             context.getApplicationContext(),
                             AppDatabase.class,
                             "leitor_acessivel.db"
-                    ).build();
+                    ).allowMainThreadQueries().build();
                 }
             }
         }
