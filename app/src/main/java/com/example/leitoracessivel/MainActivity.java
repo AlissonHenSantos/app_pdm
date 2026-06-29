@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.leitoracessivel.adapter.ArtigoAdapter;
-import com.example.leitoracessivel.model.database.DatabaseHelper;
+import com.example.leitoracessivel.model.database.AppDatabase;
+import com.example.leitoracessivel.model.database.ArtigoDao;
 import com.example.leitoracessivel.model.entities.Artigo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -26,7 +27,8 @@ public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnA
 
     private RecyclerView recyclerView;
     private ArtigoAdapter adapter;
-    private DatabaseHelper dbHelper;
+    private AppDatabase db;
+    private ArtigoDao artigoDao;
     private List<Artigo> artigos;
 
     @Override
@@ -37,7 +39,8 @@ public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnA
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        dbHelper = new DatabaseHelper(this);
+        db = AppDatabase.getInstance(this);
+        artigoDao = db.artigoDao();
         recyclerView = findViewById(R.id.recycler_artigos);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnA
     }
 
     private void carregarArtigos() {
-        artigos = dbHelper.listarArtigos();
+        artigos = artigoDao.listarArtigos();
         if (adapter == null) {
             adapter = new ArtigoAdapter(artigos, this);
             recyclerView.setAdapter(adapter);
@@ -158,12 +161,12 @@ public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnA
     }
 
     private void deletarArtigo(Artigo artigo) {
-        dbHelper.deletarArtigo(artigo.getId());
+        artigoDao.deletarArtigo(artigo);
         Toast.makeText(this, "Artigo deletado", Toast.LENGTH_SHORT).show();
         Snackbar.make(recyclerView, "\"" + artigo.getTitulo() + "\" removido",
                 Snackbar.LENGTH_LONG)
                 .setAction("Desfazer", v -> {
-                    dbHelper.inserirArtigo(artigo);
+                    artigoDao.inserirArtigo(artigo);
                     carregarArtigos();
                 }).show();
         carregarArtigos();

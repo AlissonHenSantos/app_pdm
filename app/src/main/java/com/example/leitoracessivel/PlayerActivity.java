@@ -17,7 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 
-import com.example.leitoracessivel.model.database.DatabaseHelper;
+import com.example.leitoracessivel.model.database.AppDatabase;
+import com.example.leitoracessivel.model.database.ArtigoDao;
 import com.example.leitoracessivel.model.entities.Artigo;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -35,7 +36,8 @@ public class PlayerActivity extends AppCompatActivity {
     private boolean reproduzindo = false;
 
     private Artigo artigoAtual;
-    private DatabaseHelper dbHelper;
+    private AppDatabase db;
+    private ArtigoDao artigoDao;
 
     private TextView tvTituloPlayer, tvConteudoPlayer, tvStatus;
     private Button btnPlay, btnStop, btnExportar;
@@ -63,11 +65,12 @@ public class PlayerActivity extends AppCompatActivity {
         btnExportar = findViewById(R.id.btn_exportar);
         seekBarVelocidade = findViewById(R.id.seekbar_velocidade);
 
-        dbHelper = new DatabaseHelper(this);
+        db = AppDatabase.getInstance(this);
+        artigoDao = db.artigoDao();
 
         int artigoId = getIntent().getIntExtra(MainActivity.EXTRA_ARTIGO_ID, -1);
         if (artigoId != -1) {
-            artigoAtual = dbHelper.buscarArtigo(artigoId);
+            artigoAtual = artigoDao.buscarArtigo(artigoId);
         }
 
         if (artigoAtual == null) {

@@ -14,7 +14,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.example.leitoracessivel.model.database.DatabaseHelper;
+import com.example.leitoracessivel.model.database.AppDatabase;
+import com.example.leitoracessivel.model.database.ArtigoDao;
 import com.example.leitoracessivel.model.entities.Artigo;
 import com.google.android.material.snackbar.Snackbar;
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader;
@@ -35,7 +36,8 @@ import java.util.concurrent.Executors;
 public class EditorActivity extends AppCompatActivity {
 
     private EditText etTitulo, etConteudo;
-    private DatabaseHelper dbHelper;
+    private AppDatabase db;
+    private ArtigoDao artigoDao;
     private Artigo artigoAtual;
     private boolean modoEdicao = false;
 
@@ -64,14 +66,15 @@ public class EditorActivity extends AppCompatActivity {
 
         etTitulo = findViewById(R.id.et_titulo);
         etConteudo = findViewById(R.id.et_conteudo);
-        dbHelper = new DatabaseHelper(this);
+        db = AppDatabase.getInstance(this);
+        artigoDao = db.artigoDao();
 
         String modo = getIntent().getStringExtra(MainActivity.EXTRA_MODO);
         int artigoId = getIntent().getIntExtra(MainActivity.EXTRA_ARTIGO_ID, -1);
 
         if ("editar".equals(modo) && artigoId != -1) {
             modoEdicao = true;
-            artigoAtual = dbHelper.buscarArtigo(artigoId);
+            artigoAtual = artigoDao.buscarArtigo(artigoId);
             if (artigoAtual != null) {
                 etTitulo.setText(artigoAtual.getTitulo());
                 etConteudo.setText(artigoAtual.getConteudo());
@@ -232,11 +235,11 @@ public class EditorActivity extends AppCompatActivity {
         if (modoEdicao && artigoAtual != null) {
             artigoAtual.setTitulo(titulo);
             artigoAtual.setConteudo(conteudo);
-            dbHelper.atualizarArtigo(artigoAtual);
+            artigoDao.atualizarArtigo(artigoAtual);
             Toast.makeText(this, "Artigo atualizado!", Toast.LENGTH_SHORT).show();
         } else {
             Artigo novo = new Artigo(titulo, conteudo);
-            long id = dbHelper.inserirArtigo(novo);
+            long id = artigoDao.inserirArtigo(novo);
             if (id > 0) {
                 Toast.makeText(this, "Artigo salvo!", Toast.LENGTH_SHORT).show();
             }
