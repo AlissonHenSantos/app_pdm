@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "133545538169",
+    "project_id": "leitor-acessivel-53b6e",
+    "storage_bucket": "leitor-acessivel-53b6e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:133545538169:android:25212b9f8d96c92bc69aa8",
+        "android_client_info": {
+          "package_name": "com.example.leitoracessivel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMaZfngsyxUquUi0bqdjK5Bkk8FCvbRlQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
