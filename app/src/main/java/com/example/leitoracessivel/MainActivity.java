@@ -19,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnArtigoClickListener {
 
@@ -30,11 +31,13 @@ public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnA
     private AppDatabase db;
     private ArtigoDao artigoDao;
     private List<Artigo> artigos;
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        auth = FirebaseAuth.getInstance();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -48,6 +51,15 @@ public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnA
         fab.setOnClickListener(v -> abrirEditor(null));
 
         carregarArtigos();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (auth.getCurrentUser() == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        }
     }
 
     @Override
@@ -85,7 +97,12 @@ public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnA
                     "LeitorAcessível v1.0 — Tecnologia Assistiva",
                     Snackbar.LENGTH_LONG).show();
             return true;
-        }
+        } else if (id == R.id.menu_sair) {
+        auth.signOut();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
+        return true;
+    }
         return super.onOptionsItemSelected(item);
     }
 
