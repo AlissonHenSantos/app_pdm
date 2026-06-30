@@ -23,7 +23,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnArtigoClickListener {
 
     public static final String EXTRA_ARTIGO_ID = "artigo_id";
-    public static final String EXTRA_MODO = "modo"; // "editar" ou "novo"
+    public static final String EXTRA_MODO = "modo";
 
     private RecyclerView recyclerView;
     private ArtigoAdapter adapter;
