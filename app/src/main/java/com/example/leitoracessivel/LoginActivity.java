@@ -41,7 +41,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Se já houver usuário logado, pula direto para a MainActivity
         if (auth.getCurrentUser() != null) {
             irParaMain();
         }
