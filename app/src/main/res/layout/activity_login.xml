@@ -52,6 +52,14 @@
         android:text="Entrar" />
 
     <Button
+        android:id="@+id/btn_esqueci_senha"
+        style="?attr/borderlessButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Esqueci minha senha" />
+
+    <Button
         android:id="@+id/btn_ir_cadastro"
         style="?attr/borderlessButtonStyle"
         android:layout_width="match_parent"
