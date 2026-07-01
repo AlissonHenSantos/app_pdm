@@ -43,5 +43,9 @@
                 android:resource="@xml/file_provider_paths" />
         </provider>
 
+        <receiver
+            android:name=".NotificationReceiver"
+            android:exported="true" />
+
     </application>
 </manifest>

@@ -24,6 +24,8 @@ public class ConfigActivity extends AppCompatActivity {
     private RadioGroup rgIdioma;
     private Switch switchTema;
 
+    private Switch switchLembrete;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +44,7 @@ public class ConfigActivity extends AppCompatActivity {
         tvVelocidadeLabel = findViewById(R.id.tv_velocidade_label);
         rgIdioma = findViewById(R.id.rg_idioma);
         switchTema = findViewById(R.id.switch_tema);
+        switchLembrete = findViewById(R.id.switch_lembrete);
 
         carregarConfiguracoes();
         configurarListeners();
@@ -62,6 +65,9 @@ public class ConfigActivity extends AppCompatActivity {
 
         boolean temaDark = prefs.getBoolean("tema_dark", false);
         switchTema.setChecked(temaDark);
+
+        boolean lembrete = prefs.getBoolean("lembrete", false);
+        switchLembrete.setChecked(lembrete);
     }
 
     private void configurarListeners() {
@@ -88,13 +94,20 @@ public class ConfigActivity extends AppCompatActivity {
         float velocidade = 0.5f + (seekBarVelocidade.getProgress() / 100f) * 1.5f;
         String idioma = rgIdioma.getCheckedRadioButtonId() == R.id.rb_ingles ? "en" : "pt";
         boolean temaDark = switchTema.isChecked();
+        boolean lembrete = switchLembrete.isChecked();
 
         SharedPreferences.Editor editor = prefs.edit();
         editor.putFloat("velocidade", velocidade);
         editor.putString("idioma", idioma);
         editor.putBoolean("tema_dark", temaDark);
+        editor.putBoolean("lembrete", lembrete);
         editor.apply();
 
+        if (lembrete) {
+            LembreteManager.agendar(this);
+        } else {
+            LembreteManager.cancelar(this);
+        }
 
         Snackbar.make(seekBarVelocidade,
                 "Configurações salvas com sucesso!",
