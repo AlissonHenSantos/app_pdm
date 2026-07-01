@@ -1,5 +1,17 @@
 package com.example.leitoracessivel;
 
+
+import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -29,10 +41,26 @@ public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnA
     private DatabaseHelper dbHelper;
     private List<Artigo> artigos;
 
+    private final ActivityResultLauncher<String> solicitarPermissao =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    isGranted -> {
+                    });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                solicitarPermissao.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -45,6 +73,13 @@ public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnA
         fab.setOnClickListener(v -> abrirEditor(null));
 
         carregarArtigos();
+        carregarArtigos();
+
+        SharedPreferences prefs = getSharedPreferences("config", MODE_PRIVATE);
+
+        if (prefs.getBoolean("lembrete", false)) {
+            LembreteManager.agendar(this);
+        }
     }
 
     @Override
@@ -168,4 +203,6 @@ public class MainActivity extends AppCompatActivity implements ArtigoAdapter.OnA
                 }).show();
         carregarArtigos();
     }
+
+
 }
