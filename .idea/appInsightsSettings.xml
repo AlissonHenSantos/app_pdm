@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.leitoracessivel" />
+                  <option name="mobileSdkAppId" value="1:133545538169:android:25212b9f8d96c92bc69aa8" />
+                  <option name="projectId" value="leitor-acessivel-53b6e" />
+                  <option name="projectNumber" value="133545538169" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
